@@ -107,7 +107,7 @@ app.get("/api/v1/content" , usermiddleware ,  async function(req : Request ,res 
     try{
         const content = await contentmodel.find({
             userId : userid
-        }).populate("userId")
+        }).populate("userId","username")
         res.status(200).json({
             content
         })
@@ -143,27 +143,37 @@ app.delete("/api/v1/content/:id" , usermiddleware ,  async function(req : Reques
 
 })
 
-app.post("/api/v1/share" , usermiddleware , async function(req : Request ,res : Response){
-    const { share } = req.body;
-    if(share){
-        await linkmodel.create({
-            hash : hashlink(10),
-            userId : req.id,
-        })
-        res.json({
-            message : hash 
-        })
-    }else{
-        await linkmodel.deleteOne({
-            userId : req.id,
-        })
-        res.json({
-            message : "link delted"
-        })
-    }
-})
+c
 
-app.get("/getlink" , async function(req : Request , res : Response){
+app.get("/api/v1/share/:sharelink" , async function(req : Request , res : Response){
+    const hash = req.params.sharelink;
+    const link = await linkmodel.findOne({
+        hash : hash
+    })
+    if(!link){
+        res.status(411).json({
+            message : "link does not exist"
+        })
+        return
+    }
+    const content = await contentmodel.find({
+        userId : link.userId
+    })
+
+    const user = await usermodel.findOne({
+        _id : link.userId
+    })
+
+    if(!user){
+        res.status(411).json({
+            message : "user does not exist"
+        })
+        return
+    }
+    res.json({
+        username : user.username,
+        content : content
+    })
 
 
 })

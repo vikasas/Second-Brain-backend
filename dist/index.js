@@ -55,7 +55,6 @@ const db_2 = require("./db");
 const utils_1 = require("./utils");
 const cors_1 = __importDefault(require("cors"));
 const dotenv_1 = __importDefault(require("dotenv"));
-// const JWT_SECRET = "shiva"
 dotenv_1.default.config();
 const app = (0, express_1.default)();
 app.use(express_1.default.json());
@@ -153,7 +152,7 @@ app.get("/api/v1/content", usermiddleware_1.usermiddleware, function (req, res) 
         try {
             const content = yield db_2.contentmodel.find({
                 userId: userid
-            }).populate("userId");
+            }).populate("userId", "username");
             res.status(200).json({
                 content
             });
@@ -196,12 +195,21 @@ app.post("/api/v1/share", usermiddleware_1.usermiddleware, function (req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         const { share } = req.body;
         if (share) {
+            const existinglink = yield db_1.linkmodel.findOne({
+                userId: req.id
+            });
+            if (existinglink) {
+                res.json({
+                    hash: existinglink.hash
+                });
+                return;
+            }
             yield db_1.linkmodel.create({
                 hash: (0, utils_1.hashlink)(10),
                 userId: req.id,
             });
             res.json({
-                message: bcrypt_1.hash
+                hash: bcrypt_1.hash
             });
         }
         else {
@@ -214,8 +222,38 @@ app.post("/api/v1/share", usermiddleware_1.usermiddleware, function (req, res) {
         }
     });
 });
-app.get("/getlink", function (req, res) {
+app.get("/api/v1/share/:sharelink", function (req, res) {
     return __awaiter(this, void 0, void 0, function* () {
+        const hash = req.params.sharelink;
+        console.log(hash);
+        const alllink = yield db_1.linkmodel.find();
+        console.log(alllink);
+        const link = yield db_1.linkmodel.findOne({
+            hash: hash
+        });
+        if (!link) {
+            res.status(411).json({
+                message: "link does not exist"
+            });
+            return;
+        }
+        const content = yield db_2.contentmodel.find({
+            userId: link.userId
+        });
+        const user = yield db_1.usermodel.findOne({
+            _id: link.userId
+        });
+        if (!user) {
+            res.status(411).json({
+                message: "user does not exist"
+            });
+            return;
+        }
+        res.json({
+            username: user.username,
+            content: content
+        });
     });
 });
-app.listen(3000);
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
