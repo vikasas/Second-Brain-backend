@@ -143,7 +143,36 @@ app.delete("/api/v1/content/:id" , usermiddleware ,  async function(req : Reques
 
 })
 
-c
+app.post("/api/v1/share" , usermiddleware , async function(req : Request ,res : Response){
+    const { share } = req.body;
+    if(share){
+        const existinglink = await linkmodel.findOne({
+            userId : req.id
+        })
+        if(existinglink){
+            res.json({
+            hash : existinglink.hash 
+        })
+            return
+        }
+        await linkmodel.create({
+            hash : hashlink(10),
+            userId : req.id,
+        })
+        res.json({
+            hash 
+        })     
+    }else{
+        await linkmodel.deleteOne({
+            userId : req.id,
+        })
+        res.json({
+            message : "link delted"
+        })
+    }
+})
+
+
 
 app.get("/api/v1/share/:sharelink" , async function(req : Request , res : Response){
     const hash = req.params.sharelink;

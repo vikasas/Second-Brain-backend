@@ -225,9 +225,6 @@ app.post("/api/v1/share", usermiddleware_1.usermiddleware, function (req, res) {
 app.get("/api/v1/share/:sharelink", function (req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         const hash = req.params.sharelink;
-        console.log(hash);
-        const alllink = yield db_1.linkmodel.find();
-        console.log(alllink);
         const link = yield db_1.linkmodel.findOne({
             hash: hash
         });
