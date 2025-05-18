@@ -3,7 +3,7 @@ import { z } from "zod";
 import jwt from "jsonwebtoken";
 import { usermiddleware } from "./usermiddleware";
 import { linkmodel, usermodel } from "./db";
-import bcrypt, { hash } from "bcrypt";
+import bcrypt, { hash } from "bcryptjs";
 import { contentmodel } from "./db";
 import { hashlink } from "./utils";
 import  cors from "cors";
