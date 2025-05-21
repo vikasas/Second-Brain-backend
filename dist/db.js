@@ -9,7 +9,10 @@ const dotenv_1 = __importDefault(require("dotenv"));
 const Schema = mongoose_1.default.Schema;
 const ObjectID = mongoose_1.default.Types.ObjectId;
 dotenv_1.default.config();
-mongoose_1.default.connect(process.env.MONGO_URL);
+mongoose_1.default.connect(process.env.MONGO_URL)
+    .then(() => {
+    console.log("connected");
+});
 const user = new Schema({
     email: { type: String, unique: true, required: true },
     username: { type: String, required: true },

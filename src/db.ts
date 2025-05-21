@@ -4,7 +4,10 @@ const Schema = mongoose.Schema
 const ObjectID = mongoose.Types.ObjectId
 dotenv.config();
 
-mongoose.connect(process.env.MONGO_URL!);
+mongoose.connect(process.env.MONGO_URL!)
+.then(()=>{
+    console.log("connected")
+});
 
  const user = new Schema({
     email : {type : String , unique : true , required : true},

@@ -50,7 +50,7 @@ const zod_1 = require("zod");
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const usermiddleware_1 = require("./usermiddleware");
 const db_1 = require("./db");
-const bcrypt_1 = __importStar(require("bcrypt"));
+const bcryptjs_1 = __importStar(require("bcryptjs"));
 const db_2 = require("./db");
 const utils_1 = require("./utils");
 const cors_1 = __importDefault(require("cors"));
@@ -75,7 +75,7 @@ app.post("/api/v1/signup", function (req, res) {
         }
         const { email, username, password } = parsed.data;
         try {
-            const hashedpassword = yield bcrypt_1.default.hash(password, 10);
+            const hashedpassword = yield bcryptjs_1.default.hash(password, 10);
             const user = yield db_1.usermodel.create({
                 email: email,
                 username: username,
@@ -101,10 +101,10 @@ app.post("/api/v1/signin", function (req, res) {
             });
             if (!user) {
                 return res.status(403).json({
-                    message: "The credentials are wrong"
+                    message: "The user not found"
                 });
             }
-            const passwordmatch = yield bcrypt_1.default.compare(password, user.password);
+            const passwordmatch = yield bcryptjs_1.default.compare(password, user.password);
             if (user && passwordmatch) {
                 const token = jsonwebtoken_1.default.sign({
                     id: user._id,
@@ -113,6 +113,11 @@ app.post("/api/v1/signin", function (req, res) {
                 return res.status(200).json({
                     message: "you are signed in",
                     token
+                });
+            }
+            else {
+                return res.status(404).json({
+                    message: "Incorrect credentials"
                 });
             }
         }
@@ -209,7 +214,7 @@ app.post("/api/v1/share", usermiddleware_1.usermiddleware, function (req, res) {
                 userId: req.id,
             });
             res.json({
-                hash: bcrypt_1.hash
+                hash: bcryptjs_1.hash
             });
         }
         else {

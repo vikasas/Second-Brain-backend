@@ -59,7 +59,7 @@ app.post("/api/v1/signin" , async function(req : Request , res : Response){
         })
         if (!user) {
             return res.status(403).json({
-                message: "The credentials are wrong"
+                message: "The user not found"
             });
         }
         const passwordmatch = await bcrypt.compare(password , user.password)
@@ -71,6 +71,10 @@ app.post("/api/v1/signin" , async function(req : Request , res : Response){
          return res.status(200).json({
             message : "you are signed in",
             token
+        })
+    }else{
+        return res.status(404).json({
+            message : "Incorrect credentials"
         })
     }
     }catch(e){
@@ -171,8 +175,6 @@ app.post("/api/v1/share" , usermiddleware , async function(req : Request ,res : 
         })
     }
 })
-
-
 
 app.get("/api/v1/share/:sharelink" , async function(req : Request , res : Response){
     const hash = req.params.sharelink;
